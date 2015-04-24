@@ -6,10 +6,10 @@ import (
 	"testing"
 )
 
-type _GoodDockerAPIClientManager struct{}
-type _BadDockerAPIClientManager struct{}
+type _Mock_Good_DockerAPIClientManager struct{}
+type _Mock_Bad_DockerAPIClientManager struct{}
 
-func (repo *_GoodDockerAPIClientManager) ListContainers(socketPath string) ([]*Container, error) {
+func (repo *_Mock_Good_DockerAPIClientManager) ListContainers(socketPath string) ([]*Container, error) {
 	var containers = []*Container{
 		&Container{
 			ID: "01",
@@ -18,7 +18,7 @@ func (repo *_GoodDockerAPIClientManager) ListContainers(socketPath string) ([]*C
 	return containers, nil
 }
 
-func (repo *_BadDockerAPIClientManager) ListContainers(socketPath string) ([]*Container, error) {
+func (repo *_Mock_Bad_DockerAPIClientManager) ListContainers(socketPath string) ([]*Container, error) {
 	var containers []*Container
 	return containers, errors.New("Bad DockerAPIClientManager")
 }
@@ -27,22 +27,22 @@ func TestListContainers(t *testing.T) {
 	Convey("Validate ListContainers", t, func() {
 
 		Convey("Validate when DockerAPIClientManager is null, returns errors", func() {
-			dockerapiclient := new(DockerAPIClientManager)
-			containers, err := dockerapiclient.ListContainers("test")
+			dockerAPIClient := new(DockerAPIClientManager)
+			containers, err := dockerAPIClient.ListContainers("test")
 			So(containers, ShouldBeEmpty)
 			So(err, ShouldNotBeNil)
 		})
 
 		Convey("Validate when DockerAPIClientManager is valid, returns no errors", func() {
-			dockerapiclient := &DockerAPIClientManager{InjectedDockerAPIClientManager: &_GoodDockerAPIClientManager{}}
-			containers, err := dockerapiclient.ListContainers("test")
+			dockerAPIClient := &DockerAPIClientManager{InjectedDockerAPIClientManager: &_Mock_Good_DockerAPIClientManager{}}
+			containers, err := dockerAPIClient.ListContainers("test")
 			So(len(containers), ShouldEqual, 1)
 			So(err, ShouldBeNil)
 		})
 
 		Convey("Validate when DockerAPIClientManager is invalid, returns errors", func() {
-			dockerapiclient := &DockerAPIClientManager{InjectedDockerAPIClientManager: &_BadDockerAPIClientManager{}}
-			containers, err := dockerapiclient.ListContainers("test")
+			dockerAPIClient := &DockerAPIClientManager{InjectedDockerAPIClientManager: &_Mock_Bad_DockerAPIClientManager{}}
+			containers, err := dockerAPIClient.ListContainers("test")
 			So(containers, ShouldBeEmpty)
 			So(err, ShouldNotBeNil)
 		})

@@ -9,17 +9,17 @@ import (
 )
 
 var (
-	dockerapiendpoint = flag.String("e", "/var/run/docker.sock", "Docker API endpoint")
-	dockerapiclient   = new(domain.DockerAPIClientManager)
+	dockerAPIEndpoint = flag.String("e", "/var/run/docker.sock", "Docker API endpoint")
+	dockerAPIClient   = new(domain.DockerAPIClientManager)
 )
 
 func init() {
-	dockerApiRepo := &infrastructure.DockerAPIClientRepository{}
-	dockerapiclient.InjectedDockerAPIClientManager = dockerApiRepo
+	dockerAPIRepo := &infrastructure.DockerAPIClient_HTTP_Repository{}
+	dockerAPIClient.InjectedDockerAPIClientManager = dockerAPIRepo
 }
 
 func main() {
-	_, err := dockerapiclient.ListContainers(*dockerapiendpoint)
+	_, err := dockerAPIClient.ListContainers(*dockerAPIEndpoint)
 	if err != nil {
 		log.Println(fmt.Sprintf("Error getting containers %s", err.Error()))
 	}

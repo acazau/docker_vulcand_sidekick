@@ -10,11 +10,11 @@ import (
 	"net/http/httputil"
 )
 
-type DockerAPIClientRepository struct {
+type DockerAPIClient_HTTP_Repository struct {
 	client domain.DockerAPIClientManager
 }
 
-func (repo *DockerAPIClientRepository) ListContainers(socketPath string) ([]*domain.Container, error) {
+func (repo *DockerAPIClient_HTTP_Repository) ListContainers(socketPath string) ([]*domain.Container, error) {
 	conn, err := net.Dial("unix", socketPath)
 	if err != nil {
 		log.Println(err)
