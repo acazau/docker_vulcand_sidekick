@@ -2,6 +2,7 @@ package infrastructure
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/acazau/docker_vulcand_sidekick/domain"
 	"io/ioutil"
 	"log"
@@ -50,4 +51,43 @@ func (repo *VulcandAPIClient_HTTP_Repository) ListBackends(apiUrl string) ([]*do
 	}
 
 	return backends, nil
+}
+
+func (repo *VulcandAPIClient_HTTP_Repository) ListServers(apiUrl, backendId string) ([]*domain.Server, error) {
+	conn, err := net.Dial("tcp", apiUrl)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	c := httputil.NewClientConn(conn, nil)
+	defer c.Close()
+
+	apiQuery := fmt.Sprintf("/v2/backends/%s/servers", backendId)
+	req, err := http.NewRequest("GET", apiQuery, nil)
+
+	res, err := c.Do(req)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	data, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var payload map[string][]*domain.Server
+	err = json.Unmarshal(data, &payload)
+	if err != nil {
+		return nil, err
+	}
+
+	servers := []*domain.Server{}
+	for i := range payload["Servers"] {
+		item := payload["Servers"][i]
+		servers = append(servers, item)
+	}
+
+	return servers, nil
 }
