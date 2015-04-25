@@ -20,8 +20,14 @@ type Backend struct {
 	} `json:"Settings"`
 }
 
+type Server struct {
+	ID  string `json:"Id"`
+	URL string `json:"URL"`
+}
+
 type IVulcandAPIClientManager interface {
-	ListBackends(socketPath string) ([]*Backend, error)
+	ListBackends(apiUrl string) ([]*Backend, error)
+	ListServers(apiUrl, backendId string) ([]*Server, error)
 }
 
 type VulcandAPIClientManager struct {
@@ -35,4 +41,13 @@ func (manager *VulcandAPIClientManager) ListBackends(apiUrl string) ([]*Backend,
 	backends, err := manager.InjectedVulcandAPIClientManager.ListBackends(apiUrl)
 
 	return backends, err
+}
+
+func (manager *VulcandAPIClientManager) ListServers(apiUrl, backendId string) ([]*Server, error) {
+	if manager.InjectedVulcandAPIClientManager == nil {
+		return nil, errors.New("Injected VulcandAPIClientManager cannot be null")
+	}
+	servers, err := manager.InjectedVulcandAPIClientManager.ListServers(apiUrl, backendId)
+
+	return servers, err
 }

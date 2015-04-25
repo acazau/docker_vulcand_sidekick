@@ -18,9 +18,23 @@ func (repo *_Mock_Good_VulcandAPIClientManager) ListBackends(apiPort string) ([]
 	return backends, nil
 }
 
+func (repo *_Mock_Good_VulcandAPIClientManager) ListServers(apiPort, backendId string) ([]*Server, error) {
+	var servers = []*Server{
+		&Server{
+			ID: "01",
+		},
+	}
+	return servers, nil
+}
+
 func (repo *_Mock_Bad_VulcandAPIClientManager) ListBackends(apiPort string) ([]*Backend, error) {
 	var backends []*Backend
 	return backends, errors.New("Bad VulcandAPIClientManager")
+}
+
+func (repo *_Mock_Bad_VulcandAPIClientManager) ListServers(apiPort, backendId string) ([]*Server, error) {
+	var servers []*Server
+	return servers, errors.New("Bad VulcandAPIClientManager")
 }
 
 func TestListBackends(t *testing.T) {
@@ -44,6 +58,33 @@ func TestListBackends(t *testing.T) {
 			vulcandAPIClient := &VulcandAPIClientManager{InjectedVulcandAPIClientManager: &_Mock_Bad_VulcandAPIClientManager{}}
 			backends, err := vulcandAPIClient.ListBackends("test")
 			So(backends, ShouldBeEmpty)
+			So(err, ShouldNotBeNil)
+		})
+
+	})
+}
+
+func TestListServers(t *testing.T) {
+	Convey("Validate ListServers", t, func() {
+
+		Convey("Validate when VulcandAPIClientManager is null, returns errors", func() {
+			vulcandAPIClient := new(VulcandAPIClientManager)
+			servers, err := vulcandAPIClient.ListServers("test", "b1")
+			So(servers, ShouldBeEmpty)
+			So(err, ShouldNotBeNil)
+		})
+
+		Convey("Validate when VulcandAPIClientManager is valid, returns no errors", func() {
+			vulcandAPIClient := &VulcandAPIClientManager{InjectedVulcandAPIClientManager: &_Mock_Good_VulcandAPIClientManager{}}
+			servers, err := vulcandAPIClient.ListServers("test", "b1")
+			So(len(servers), ShouldEqual, 1)
+			So(err, ShouldBeNil)
+		})
+
+		Convey("Validate when VulcandAPIClientManager is invalid, returns errors", func() {
+			vulcandAPIClient := &VulcandAPIClientManager{InjectedVulcandAPIClientManager: &_Mock_Bad_VulcandAPIClientManager{}}
+			servers, err := vulcandAPIClient.ListServers("test", "b1")
+			So(servers, ShouldBeEmpty)
 			So(err, ShouldNotBeNil)
 		})
 
