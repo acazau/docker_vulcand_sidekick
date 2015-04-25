@@ -1,2 +1,2 @@
-# docker_vulcand_sidekick
+# Docker Vulcand Sidekick
 Application discovery tool for connecting Vulcand to running Docker container
