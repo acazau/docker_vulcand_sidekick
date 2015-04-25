@@ -26,12 +26,22 @@ type Server struct {
 }
 
 type IVulcandAPIClientManager interface {
+	GetBackendById(apiUrl, backendId string) (*Backend, error)
 	ListBackends(apiUrl string) ([]*Backend, error)
 	ListServers(apiUrl, backendId string) ([]*Server, error)
 }
 
 type VulcandAPIClientManager struct {
 	InjectedVulcandAPIClientManager IVulcandAPIClientManager
+}
+
+func (manager *VulcandAPIClientManager) GetBackendById(apiUrl, backendId string) (*Backend, error) {
+	if manager.InjectedVulcandAPIClientManager == nil {
+		return nil, errors.New("Injected VulcandAPIClientManager cannot be null")
+	}
+	backend, err := manager.InjectedVulcandAPIClientManager.GetBackendById(apiUrl, backendId)
+
+	return backend, err
 }
 
 func (manager *VulcandAPIClientManager) ListBackends(apiUrl string) ([]*Backend, error) {
