@@ -23,8 +23,11 @@ type Backend struct {
 }
 
 type Server struct {
-	ID  string `json:"Id"`
-	URL string `json:"URL"`
+	Server struct {
+		ID  string `json:"Id"`
+		URL string `json:"URL"`
+	} `json:"Server"`
+	TTL string `json:"TTL"`
 }
 
 type IVulcandAPIClientManager interface {
@@ -32,6 +35,7 @@ type IVulcandAPIClientManager interface {
 	ListBackends(apiUrl string) ([]*Backend, error)
 	ListServers(apiUrl, backendId string) ([]*Server, error)
 	UpsertBackend(apiUrl string, backend *Backend) (*Backend, error)
+	UpsertServer(apiUrl, backendId string, server *Server) (*Server, error)
 }
 
 type VulcandAPIClientManager struct {
@@ -72,4 +76,13 @@ func (manager *VulcandAPIClientManager) ListServers(apiUrl, backendId string) ([
 	servers, err := manager.InjectedVulcandAPIClientManager.ListServers(apiUrl, backendId)
 
 	return servers, err
+}
+
+func (manager *VulcandAPIClientManager) UpsertServer(apiUrl, backendId string, server *Server) (*Server, error) {
+	if manager.InjectedVulcandAPIClientManager == nil {
+		return nil, errors.New("Injected VulcandAPIClientManager cannot be null")
+	}
+	upsertedServer, err := manager.InjectedVulcandAPIClientManager.UpsertServer(apiUrl, backendId, server)
+
+	return upsertedServer, err
 }
