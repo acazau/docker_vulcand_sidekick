@@ -40,6 +40,14 @@ func (repo *_Mock_Good_VulcandAPIClientManager) ListServers(apiPort, backendId s
 	return servers, nil
 }
 
+func (repo *_Mock_Good_VulcandAPIClientManager) UpsertServer(apiUrl, backendId string, server *Server) (*Server, error) {
+	var uServer = new(Server)
+	uServer.Server.ID = "s01"
+	uServer.Server.URL = "http://localhost:5001"
+	uServer.TTL = "5s"
+	return uServer, nil
+}
+
 func (repo *_Mock_Bad_VulcandAPIClientManager) GetBackendById(apiPort, backendId string) (*Backend, error) {
 	var backend Backend
 	return &backend, errors.New("Bad VulcandAPIClientManager")
@@ -58,6 +66,11 @@ func (repo *_Mock_Bad_VulcandAPIClientManager) UpsertBackend(apiUrl string, back
 func (repo *_Mock_Bad_VulcandAPIClientManager) ListServers(apiPort, backendId string) ([]*Server, error) {
 	var servers []*Server
 	return servers, errors.New("Bad VulcandAPIClientManager")
+}
+
+func (repo *_Mock_Bad_VulcandAPIClientManager) UpsertServer(apiUrl, backendId string, server *Server) (*Server, error) {
+	var Server Server
+	return &Server, errors.New("Bad VulcandAPIClientManager")
 }
 
 func TestGetBackendById(t *testing.T) {
@@ -169,6 +182,38 @@ func TestListServers(t *testing.T) {
 			vulcandAPIClient := &VulcandAPIClientManager{InjectedVulcandAPIClientManager: &_Mock_Bad_VulcandAPIClientManager{}}
 			servers, err := vulcandAPIClient.ListServers("test", "b1")
 			So(servers, ShouldBeEmpty)
+			So(err, ShouldNotBeNil)
+		})
+
+	})
+}
+
+func TestUpsertServer(t *testing.T) {
+	var _server = new(Server)
+	_server.Server.ID = "s01"
+	_server.Server.URL = "http://localhost:5001"
+	_server.TTL = "5s"
+
+	Convey("Validate UpsertBackend", t, func() {
+
+		Convey("Validate when VulcandAPIClientManager is null, returns errors", func() {
+			vulcandAPIClient := new(VulcandAPIClientManager)
+			server, err := vulcandAPIClient.UpsertServer("test", "b1", _server)
+			So(server, ShouldHaveSameTypeAs, _server)
+			So(err, ShouldNotBeNil)
+		})
+
+		Convey("Validate when VulcandAPIClientManager is valid, returns no errors", func() {
+			vulcandAPIClient := &VulcandAPIClientManager{InjectedVulcandAPIClientManager: &_Mock_Good_VulcandAPIClientManager{}}
+			server, err := vulcandAPIClient.UpsertServer("test", "b1", _server)
+			So(server, ShouldHaveSameTypeAs, _server)
+			So(err, ShouldBeNil)
+		})
+
+		Convey("Validate when VulcandAPIClientManager is invalid, returns errors", func() {
+			vulcandAPIClient := &VulcandAPIClientManager{InjectedVulcandAPIClientManager: &_Mock_Bad_VulcandAPIClientManager{}}
+			server, err := vulcandAPIClient.UpsertServer("test", "b1", _server)
+			So(server, ShouldHaveSameTypeAs, _server)
 			So(err, ShouldNotBeNil)
 		})
 

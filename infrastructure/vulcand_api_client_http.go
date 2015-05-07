@@ -1,6 +1,7 @@
 package infrastructure
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/acazau/docker_vulcand_sidekick/domain"
@@ -9,7 +10,6 @@ import (
 	"net"
 	"net/http"
 	"net/http/httputil"
-	"bytes"
 )
 
 type VulcandAPIClient_HTTP_Repository struct {
@@ -30,13 +30,13 @@ func ExecuteRequest(method, apiUrl, apiQuery string, body []byte, headers map[st
 	if err != nil {
 		return nil, err
 	}
-	
+
 	req.Header.Add("Content-Type", "application/json")
 	if headers != nil {
 		for header, value := range headers {
 			req.Header.Add(header, value)
 		}
-	}	
+	}
 
 	res, err := c.Do(req)
 	if err != nil {
@@ -118,4 +118,21 @@ func (repo *VulcandAPIClient_HTTP_Repository) ListServers(apiUrl, backendId stri
 	}
 
 	return servers, nil
+}
+
+func (repo *VulcandAPIClient_HTTP_Repository) UpsertServer(apiUrl, backendId string, server *domain.Server) (*domain.Server, error) {
+	apiQuery := fmt.Sprintf("/v2/backends/%s/servers", backendId)
+	data, err := json.Marshal(&server)
+	if err != nil {
+		return nil, err
+	}
+	payload, err := ExecuteRequest("POST", apiUrl, apiQuery, data, nil)
+
+	upsertedServer := domain.Server{}
+	err = json.Unmarshal(payload, &upsertedServer)
+	if err != nil {
+		return nil, err
+	}
+
+	return &upsertedServer, nil
 }
