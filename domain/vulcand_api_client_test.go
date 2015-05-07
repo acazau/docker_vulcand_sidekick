@@ -48,6 +48,11 @@ func (repo *_Mock_Good_VulcandAPIClientManager) UpsertServer(apiUrl, backendId s
 	return uServer, nil
 }
 
+func (repo *_Mock_Good_VulcandAPIClientManager) DeleteBackendById(apiUrl, backendId string) error {
+	type response map[string]interface{}
+	return nil
+}
+
 func (repo *_Mock_Bad_VulcandAPIClientManager) GetBackendById(apiPort, backendId string) (*Backend, error) {
 	var backend Backend
 	return &backend, errors.New("Bad VulcandAPIClientManager")
@@ -71,6 +76,10 @@ func (repo *_Mock_Bad_VulcandAPIClientManager) ListServers(apiPort, backendId st
 func (repo *_Mock_Bad_VulcandAPIClientManager) UpsertServer(apiUrl, backendId string, server *Server) (*Server, error) {
 	var Server Server
 	return &Server, errors.New("Bad VulcandAPIClientManager")
+}
+
+func (repo *_Mock_Bad_VulcandAPIClientManager) DeleteBackendById(apiUrl, backendId string) error {
+	return errors.New("Bad VulcandAPIClientManager")
 }
 
 func TestGetBackendById(t *testing.T) {
@@ -194,7 +203,7 @@ func TestUpsertServer(t *testing.T) {
 	_server.Server.URL = "http://localhost:5001"
 	_server.TTL = "5s"
 
-	Convey("Validate UpsertBackend", t, func() {
+	Convey("Validate UpsertServer", t, func() {
 
 		Convey("Validate when VulcandAPIClientManager is null, returns errors", func() {
 			vulcandAPIClient := new(VulcandAPIClientManager)
@@ -214,6 +223,30 @@ func TestUpsertServer(t *testing.T) {
 			vulcandAPIClient := &VulcandAPIClientManager{InjectedVulcandAPIClientManager: &_Mock_Bad_VulcandAPIClientManager{}}
 			server, err := vulcandAPIClient.UpsertServer("test", "b1", _server)
 			So(server, ShouldHaveSameTypeAs, _server)
+			So(err, ShouldNotBeNil)
+		})
+
+	})
+}
+
+func TestDeleteBackendById(t *testing.T) {
+	Convey("Validate DeleteBackendById", t, func() {
+
+		Convey("Validate when VulcandAPIClientManager is null, returns errors", func() {
+			vulcandAPIClient := new(VulcandAPIClientManager)
+			err := vulcandAPIClient.DeleteBackendById("test", "b1")
+			So(err, ShouldNotBeNil)
+		})
+
+		Convey("Validate when VulcandAPIClientManager is valid, returns no errors", func() {
+			vulcandAPIClient := &VulcandAPIClientManager{InjectedVulcandAPIClientManager: &_Mock_Good_VulcandAPIClientManager{}}
+			err := vulcandAPIClient.DeleteBackendById("test", "b1")
+			So(err, ShouldBeNil)
+		})
+
+		Convey("Validate when VulcandAPIClientManager is invalid, returns errors", func() {
+			vulcandAPIClient := &VulcandAPIClientManager{InjectedVulcandAPIClientManager: &_Mock_Bad_VulcandAPIClientManager{}}
+			err := vulcandAPIClient.DeleteBackendById("test", "b1")
 			So(err, ShouldNotBeNil)
 		})
 

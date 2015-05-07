@@ -136,3 +136,13 @@ func (repo *VulcandAPIClient_HTTP_Repository) UpsertServer(apiUrl, backendId str
 
 	return &upsertedServer, nil
 }
+
+func (repo *VulcandAPIClient_HTTP_Repository) DeleteBackendById(apiUrl, backendId string) error {
+	apiQuery := fmt.Sprintf("/v2/backends/%s", backendId)
+	_, err := ExecuteRequest("DELETE", apiUrl, apiQuery, nil, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
