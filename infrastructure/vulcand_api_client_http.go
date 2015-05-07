@@ -9,13 +9,14 @@ import (
 	"net"
 	"net/http"
 	"net/http/httputil"
+	"bytes"
 )
 
 type VulcandAPIClient_HTTP_Repository struct {
 	client domain.VulcandAPIClientManager
 }
 
-func ExecuteRequest(apiUrl, apiQuery string) ([]byte, error) {
+func ExecuteRequest(method, apiUrl, apiQuery string, body []byte, headers map[string]string) ([]byte, error) {
 	conn, err := net.Dial("tcp", apiUrl)
 	if err != nil {
 		log.Println(err)
@@ -24,7 +25,18 @@ func ExecuteRequest(apiUrl, apiQuery string) ([]byte, error) {
 	c := httputil.NewClientConn(conn, nil)
 	defer c.Close()
 
-	req, err := http.NewRequest("GET", apiQuery, nil)
+	b := bytes.NewBuffer(body)
+	req, err := http.NewRequest(method, apiQuery, b)
+	if err != nil {
+		return nil, err
+	}
+	
+	req.Header.Add("Content-Type", "application/json")
+	if headers != nil {
+		for header, value := range headers {
+			req.Header.Add(header, value)
+		}
+	}	
 
 	res, err := c.Do(req)
 	if err != nil {
@@ -44,7 +56,7 @@ func ExecuteRequest(apiUrl, apiQuery string) ([]byte, error) {
 
 func (repo *VulcandAPIClient_HTTP_Repository) GetBackendById(apiUrl, backendId string) (*domain.Backend, error) {
 	apiQuery := fmt.Sprintf("/v2/backends/%s", backendId)
-	payload, err := ExecuteRequest(apiUrl, apiQuery)
+	payload, err := ExecuteRequest("GET", apiUrl, apiQuery, nil, nil)
 
 	backend := domain.Backend{}
 	err = json.Unmarshal(payload, &backend)
@@ -56,7 +68,7 @@ func (repo *VulcandAPIClient_HTTP_Repository) GetBackendById(apiUrl, backendId s
 }
 
 func (repo *VulcandAPIClient_HTTP_Repository) ListBackends(apiUrl string) ([]*domain.Backend, error) {
-	payload, err := ExecuteRequest(apiUrl, "/v2/backends")
+	payload, err := ExecuteRequest("GET", apiUrl, "/v2/backends", nil, nil)
 
 	var payloadUnmarshalled map[string][]*domain.Backend
 	err = json.Unmarshal(payload, &payloadUnmarshalled)
@@ -73,9 +85,25 @@ func (repo *VulcandAPIClient_HTTP_Repository) ListBackends(apiUrl string) ([]*do
 	return backends, nil
 }
 
+func (repo *VulcandAPIClient_HTTP_Repository) UpsertBackend(apiUrl string, backend *domain.Backend) (*domain.Backend, error) {
+	data, err := json.Marshal(&backend)
+	if err != nil {
+		return nil, err
+	}
+	payload, err := ExecuteRequest("POST", apiUrl, "/v2/backends", data, nil)
+
+	upsertedBackend := domain.Backend{}
+	err = json.Unmarshal(payload, &upsertedBackend)
+	if err != nil {
+		return nil, err
+	}
+
+	return &upsertedBackend, nil
+}
+
 func (repo *VulcandAPIClient_HTTP_Repository) ListServers(apiUrl, backendId string) ([]*domain.Server, error) {
 	apiQuery := fmt.Sprintf("/v2/backends/%s/servers", backendId)
-	payload, err := ExecuteRequest(apiUrl, apiQuery)
+	payload, err := ExecuteRequest("GET", apiUrl, apiQuery, nil, nil)
 
 	var payloadUnmarshalled map[string][]*domain.Server
 	err = json.Unmarshal(payload, &payloadUnmarshalled)
