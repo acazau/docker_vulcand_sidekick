@@ -36,6 +36,7 @@ type IVulcandAPIClientManager interface {
 	ListServers(apiUrl, backendId string) ([]*Server, error)
 	UpsertBackend(apiUrl string, backend *Backend) (*Backend, error)
 	UpsertServer(apiUrl, backendId string, server *Server) (*Server, error)
+	DeleteBackendById(apiUrl, backendId string) error
 }
 
 type VulcandAPIClientManager struct {
@@ -85,4 +86,13 @@ func (manager *VulcandAPIClientManager) UpsertServer(apiUrl, backendId string, s
 	upsertedServer, err := manager.InjectedVulcandAPIClientManager.UpsertServer(apiUrl, backendId, server)
 
 	return upsertedServer, err
+}
+
+func (manager *VulcandAPIClientManager) DeleteBackendById(apiUrl, backendId string) error {
+	if manager.InjectedVulcandAPIClientManager == nil {
+		return errors.New("Injected VulcandAPIClientManager cannot be null")
+	}
+	err := manager.InjectedVulcandAPIClientManager.DeleteBackendById(apiUrl, backendId)
+
+	return err
 }
