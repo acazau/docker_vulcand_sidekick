@@ -59,7 +59,7 @@ func (repo *VulcandAPIClient_HTTP_Repository) GetBackendById(apiUrl, backendId s
 	payload, err := ExecuteRequest("GET", apiUrl, apiQuery, nil, nil)
 
 	backend := domain.Backend{}
-	err = json.Unmarshal(payload, &backend)
+	err = json.Unmarshal(payload, &backend.Backend)
 	if err != nil {
 		return nil, err
 	}
