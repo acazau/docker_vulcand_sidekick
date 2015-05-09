@@ -67,6 +67,19 @@ func (repo *VulcandAPIClient_HTTP_Repository) GetBackendById(apiUrl, backendId s
 	return &backend, nil
 }
 
+func (repo *VulcandAPIClient_HTTP_Repository) GetServerById(apiUrl, backendId, serverId string) (*domain.Server, error) {
+	apiQuery := fmt.Sprintf("/v2/backends/%s/servers/%s", backendId, serverId)
+	payload, err := ExecuteRequest("GET", apiUrl, apiQuery, nil, nil)
+
+	server := domain.Server{}
+	err = json.Unmarshal(payload, &server.Server)
+	if err != nil {
+		return nil, err
+	}
+
+	return &server, nil
+}
+
 func (repo *VulcandAPIClient_HTTP_Repository) ListBackends(apiUrl string) ([]*domain.Backend, error) {
 	payload, err := ExecuteRequest("GET", apiUrl, "/v2/backends", nil, nil)
 
