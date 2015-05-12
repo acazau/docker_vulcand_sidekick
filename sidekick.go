@@ -7,10 +7,9 @@ import (
 )
 
 var (
-	dockerAPIEndpoint  = flag.String("d", "/var/run/docker.sock", "Docker API endpoint")
-	vulcandAPIEndpoint = flag.String("v", "127.0.0.1:8182", "Vulcand API endpoint")
-	dockerAPIClient    = new(domain.DockerAPIClientManager)
-	vulcandAPIClient   = new(domain.VulcandAPIClientManager)
+	dockerAPIClient  = new(domain.DockerAPIClientManager)
+	vulcandAPIClient = new(domain.VulcandAPIClientManager)
+	config           = &domain.Config{}
 )
 
 func init() {
@@ -18,7 +17,9 @@ func init() {
 	vulcandAPIRepo := &infrastructure.VulcandAPIClient_HTTP_Repository{}
 	dockerAPIClient.InjectedDockerAPIClientManager = dockerAPIRepo
 	vulcandAPIClient.InjectedVulcandAPIClientManager = vulcandAPIRepo
+	config.InstallFlags()
 }
 
 func main() {
+	flag.Parse()
 }
