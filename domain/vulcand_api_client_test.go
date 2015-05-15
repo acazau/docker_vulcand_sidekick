@@ -16,6 +16,14 @@ func (repo *_Mock_Good_VulcandAPIClientManager) GetBackendById(apiPort, backendI
 	return backend, nil
 }
 
+func (repo *_Mock_Good_VulcandAPIClientManager) GetServerById(apiUrl, backendId, serverId string) (*Server, error) {
+	var server = new(Server)
+	server.Server.ID = "s01"
+	server.Server.URL = "http://localhost:5001"
+	server.TTL = "5s"
+	return server, nil
+}
+
 func (repo *_Mock_Good_VulcandAPIClientManager) ListBackends(apiPort string) ([]*Backend, error) {
 	var backend = new(Backend)
 	backend.Backend.ID = "01"
@@ -56,6 +64,11 @@ func (repo *_Mock_Good_VulcandAPIClientManager) DeleteBackendById(apiUrl, backen
 func (repo *_Mock_Bad_VulcandAPIClientManager) GetBackendById(apiPort, backendId string) (*Backend, error) {
 	var backend Backend
 	return &backend, errors.New("Bad VulcandAPIClientManager")
+}
+
+func (repo *_Mock_Bad_VulcandAPIClientManager) GetServerById(apiUrl, backendId, serverId string) (*Server, error) {
+	var server Server
+	return &server, errors.New("Bad VulcandAPIClientManager")
 }
 
 func (repo *_Mock_Bad_VulcandAPIClientManager) ListBackends(apiPort string) ([]*Backend, error) {
@@ -106,6 +119,36 @@ func TestGetBackendById(t *testing.T) {
 			backend, err := vulcandAPIClient.GetBackendById("test", "b1")
 			_backend := new(Backend)
 			So(backend, ShouldHaveSameTypeAs, _backend)
+			So(err, ShouldNotBeNil)
+		})
+
+	})
+}
+
+func TestGetServerById(t *testing.T) {
+	Convey("Validate GetServerById", t, func() {
+
+		Convey("Validate when VulcandAPIClientManager is null, returns errors", func() {
+			vulcandAPIClient := new(VulcandAPIClientManager)
+			server, err := vulcandAPIClient.GetServerById("test", "b1", "srv1")
+			_server := new(Server)
+			So(server, ShouldHaveSameTypeAs, _server)
+			So(err, ShouldNotBeNil)
+		})
+
+		Convey("Validate when VulcandAPIClientManager is valid, returns no errors", func() {
+			vulcandAPIClient := &VulcandAPIClientManager{InjectedVulcandAPIClientManager: &_Mock_Good_VulcandAPIClientManager{}}
+			server, err := vulcandAPIClient.GetServerById("test", "b1", "srv1")
+			_server := new(Server)
+			So(server, ShouldHaveSameTypeAs, _server)
+			So(err, ShouldBeNil)
+		})
+
+		Convey("Validate when VulcandAPIClientManager is invalid, returns errors", func() {
+			vulcandAPIClient := &VulcandAPIClientManager{InjectedVulcandAPIClientManager: &_Mock_Bad_VulcandAPIClientManager{}}
+			server, err := vulcandAPIClient.GetServerById("test", "b1", "srv1")
+			_server := new(Server)
+			So(server, ShouldHaveSameTypeAs, _server)
 			So(err, ShouldNotBeNil)
 		})
 
