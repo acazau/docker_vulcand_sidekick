@@ -12,8 +12,8 @@ type Container struct {
 	Names   []string `json:"Names"`
 	Ports   []struct {
 		IP          string `json:"IP"`
-		Privateport int    `json:"PrivatePort"`
-		Publicport  int    `json:"PublicPort"`
+		PrivatePort int    `json:"PrivatePort"`
+		PublicPort  int    `json:"PublicPort"`
 		Type        string `json:"Type"`
 	} `json:"Ports"`
 	Status string `json:"Status"`
