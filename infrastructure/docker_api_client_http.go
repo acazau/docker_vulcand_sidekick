@@ -23,7 +23,7 @@ func (repo *DockerAPIClient_HTTP_Repository) ListContainers(socketPath string) (
 	c := httputil.NewClientConn(conn, nil)
 	defer c.Close()
 
-	req, err := http.NewRequest("GET", "/containers/json?all=1", nil)
+	req, err := http.NewRequest("GET", "/containers/json?all=0", nil)
 
 	res, err := c.Do(req)
 	if err != nil {
