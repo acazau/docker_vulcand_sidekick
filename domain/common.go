@@ -12,6 +12,6 @@ type Config struct {
 
 func (config *Config) InstallFlags() {
 	flag.StringVar(&config.DockerAPIEndpoint, "d", "/var/run/docker.sock", "Docker API endpoint")
-	flag.StringVar(&config.VulcandAPIEndpoint, "v", "127.0.0.1:8182", "Vulcand API endpoint")
+	flag.StringVar(&config.VulcandAPIEndpoint, "v", "172.17.8.101:8182", "Vulcand API endpoint")
 	flag.StringVar(&config.HostIP, "h", "172.17.8.101", "Host's external facing ip")
 }

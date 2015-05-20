@@ -159,3 +159,24 @@ func (repo *VulcandAPIClient_HTTP_Repository) DeleteBackendById(apiUrl, backendI
 
 	return nil
 }
+
+func (repo *VulcandAPIClient_HTTP_Repository) ListFrontends(apiUrl string) ([]*domain.Frontend, error) {
+	payload, err := ExecuteRequest("GET", apiUrl, "/v2/frontends", nil, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var payloadUnmarshalled map[string][]*domain.Frontend
+	err = json.Unmarshal(payload, &payloadUnmarshalled)
+	if err != nil {
+		return nil, err
+	}
+
+	frontends := []*domain.Frontend{}
+	for i := range payloadUnmarshalled["Frontends"] {
+		item := payloadUnmarshalled["Frontends"][i]
+		frontends = append(frontends, item)
+	}
+
+	return frontends, nil
+}

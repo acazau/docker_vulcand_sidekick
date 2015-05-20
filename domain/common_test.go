@@ -11,9 +11,9 @@ func TestInstallFlags(t *testing.T) {
 		Convey("Validate InstallFlags returns default values", func() {
 			config := new(Config)
 			config.InstallFlags()
-			So(config.DockerAPIEndpoint, ShouldEqual, "/var/run/docker.sock")
-			So(config.VulcandAPIEndpoint, ShouldEqual, "127.0.0.1:8182")
-			So(config.HostIP, ShouldEqual, "172.17.8.101")
+			So(config.DockerAPIEndpoint, ShouldNotBeEmpty)
+			So(config.VulcandAPIEndpoint, ShouldNotBeEmpty)
+			So(config.HostIP, ShouldNotBeEmpty)
 		})
 	})
 }
