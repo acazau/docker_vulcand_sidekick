@@ -24,6 +24,10 @@ func (repo *_Mock_Good_VulcandAPIClientManager) GetServerById(apiUrl, backendId,
 	return server, nil
 }
 
+func (repo *_Mock_Good_VulcandAPIClientManager) GetFrontendById(apiPort, frontendId string) (*Frontend, error) {
+	return &Frontend{ID: "01"}, nil
+}
+
 func (repo *_Mock_Good_VulcandAPIClientManager) ListBackends(apiPort string) ([]*Backend, error) {
 	var backend = new(Backend)
 	backend.Backend.ID = "01"
@@ -78,6 +82,10 @@ func (repo *_Mock_Bad_VulcandAPIClientManager) GetBackendById(apiPort, backendId
 func (repo *_Mock_Bad_VulcandAPIClientManager) GetServerById(apiUrl, backendId, serverId string) (*Server, error) {
 	var server Server
 	return &server, errors.New("Bad VulcandAPIClientManager")
+}
+
+func (repo *_Mock_Bad_VulcandAPIClientManager) GetFrontendById(apiPort, frontendId string) (*Frontend, error) {
+	return &Frontend{}, errors.New("Bad VulcandAPIClientManager")
 }
 
 func (repo *_Mock_Bad_VulcandAPIClientManager) ListBackends(apiPort string) ([]*Backend, error) {
@@ -304,6 +312,36 @@ func TestDeleteBackendById(t *testing.T) {
 		Convey("Validate when VulcandAPIClientManager is invalid, returns errors", func() {
 			vulcandAPIClient := &VulcandAPIClientManager{InjectedVulcandAPIClientManager: &_Mock_Bad_VulcandAPIClientManager{}}
 			err := vulcandAPIClient.DeleteBackendById("test", "b1")
+			So(err, ShouldNotBeNil)
+		})
+
+	})
+}
+
+func TestGetFrontendById(t *testing.T) {
+	Convey("Validate FrontendById", t, func() {
+
+		Convey("Validate when VulcandAPIClientManager is null, returns errors", func() {
+			vulcandAPIClient := new(VulcandAPIClientManager)
+			frontend, err := vulcandAPIClient.GetFrontendById("test", "b1")
+			_frontend := new(Frontend)
+			So(frontend, ShouldHaveSameTypeAs, _frontend)
+			So(err, ShouldNotBeNil)
+		})
+
+		Convey("Validate when VulcandAPIClientManager is valid, returns no errors", func() {
+			vulcandAPIClient := &VulcandAPIClientManager{InjectedVulcandAPIClientManager: &_Mock_Good_VulcandAPIClientManager{}}
+			frontend, err := vulcandAPIClient.GetFrontendById("test", "b1")
+			_frontend := new(Frontend)
+			So(frontend, ShouldHaveSameTypeAs, _frontend)
+			So(err, ShouldBeNil)
+		})
+
+		Convey("Validate when VulcandAPIClientManager is invalid, returns errors", func() {
+			vulcandAPIClient := &VulcandAPIClientManager{InjectedVulcandAPIClientManager: &_Mock_Bad_VulcandAPIClientManager{}}
+			frontend, err := vulcandAPIClient.GetFrontendById("test", "b1")
+			_frontend := new(Frontend)
+			So(frontend, ShouldHaveSameTypeAs, _frontend)
 			So(err, ShouldNotBeNil)
 		})
 

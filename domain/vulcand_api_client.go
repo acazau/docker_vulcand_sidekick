@@ -49,6 +49,7 @@ type Frontend struct {
 type IVulcandAPIClientManager interface {
 	GetBackendById(apiUrl, backendId string) (*Backend, error)
 	GetServerById(apiUrl, backendId, serverId string) (*Server, error)
+	GetFrontendById(apiUrl, frontendId string) (*Frontend, error)
 	ListBackends(apiUrl string) ([]*Backend, error)
 	ListServers(apiUrl, backendId string) ([]*Server, error)
 	ListFrontends(apiUrl string) ([]*Frontend, error)
@@ -77,6 +78,15 @@ func (manager *VulcandAPIClientManager) GetServerById(apiUrl, backendId, serverI
 	server, err := manager.InjectedVulcandAPIClientManager.GetServerById(apiUrl, backendId, serverId)
 
 	return server, err
+}
+
+func (manager *VulcandAPIClientManager) GetFrontendById(apiUrl, frontendId string) (*Frontend, error) {
+	if manager.InjectedVulcandAPIClientManager == nil {
+		return nil, errors.New("Injected VulcandAPIClientManager cannot be null")
+	}
+	backend, err := manager.InjectedVulcandAPIClientManager.GetFrontendById(apiUrl, frontendId)
+
+	return backend, err
 }
 
 func (manager *VulcandAPIClientManager) ListBackends(apiUrl string) ([]*Backend, error) {
