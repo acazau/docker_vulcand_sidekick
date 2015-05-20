@@ -30,11 +30,28 @@ type Server struct {
 	TTL string `json:"TTL"`
 }
 
+type Frontend struct {
+	ID        string `json:"Id"`
+	Route     string `json:"Route"`
+	Type      string `json:"Type"`
+	Backendid string `json:"BackendId"`
+	Settings  struct {
+		Limits struct {
+			Maxmembodybytes int `json:"MaxMemBodyBytes"`
+			Maxbodybytes    int `json:"MaxBodyBytes"`
+		} `json:"Limits"`
+		Failoverpredicate  string `json:"FailoverPredicate"`
+		Hostname           string `json:"Hostname"`
+		Trustforwardheader bool   `json:"TrustForwardHeader"`
+	} `json:"Settings"`
+}
+
 type IVulcandAPIClientManager interface {
 	GetBackendById(apiUrl, backendId string) (*Backend, error)
 	GetServerById(apiUrl, backendId, serverId string) (*Server, error)
 	ListBackends(apiUrl string) ([]*Backend, error)
 	ListServers(apiUrl, backendId string) ([]*Server, error)
+	ListFrontends(apiUrl string) ([]*Frontend, error)
 	UpsertBackend(apiUrl string, backend *Backend) (*Backend, error)
 	UpsertServer(apiUrl, backendId string, server *Server) (*Server, error)
 	DeleteBackendById(apiUrl, backendId string) error
@@ -105,4 +122,13 @@ func (manager *VulcandAPIClientManager) DeleteBackendById(apiUrl, backendId stri
 	err := manager.InjectedVulcandAPIClientManager.DeleteBackendById(apiUrl, backendId)
 
 	return err
+}
+
+func (manager *VulcandAPIClientManager) ListFrontends(apiUrl string) ([]*Frontend, error) {
+	if manager.InjectedVulcandAPIClientManager == nil {
+		return nil, errors.New("Injected VulcandAPIClientManager cannot be null")
+	}
+	frontends, err := manager.InjectedVulcandAPIClientManager.ListFrontends(apiUrl)
+
+	return frontends, err
 }
